@@ -34,7 +34,6 @@ class Shazam(Request):
     ):
         super().__init__(language=language)
 
-        self.core_recognizer = Recognizer()
         self.language = language
         self.endpoint_country = endpoint_country
 
@@ -509,7 +508,6 @@ class Shazam(Request):
             proxy=proxy,
         )
 
-    @deprecated("Use recognize method instead of recognize_song")
     async def recognize_song(
         self,
         data: Union[str, pathlib.Path, bytes, bytearray, AudioSegment],
@@ -545,54 +543,6 @@ class Shazam(Request):
             sig.encode_to_uri(),
             int(sig.number_samples / sig.sample_rate_hz * 1000),
             int(time.time() * 1000),
-        )
-        return await self.http_client.request(
-            "POST",
-            ShazamUrl.SEARCH_FROM_FILE.format(
-                language=self.language,
-                device=Device.random().value,
-                endpoint_country=self.endpoint_country,
-                uuid_1=str(uuid.uuid4()).upper(),
-                uuid_2=str(uuid.uuid4()).upper(),
-            ),
-            headers=self.headers(),
-            proxy=proxy,
-            json=data,
-        )
-
-    async def recognize(
-        self,
-        data: Union[str, bytes, bytearray],
-        proxy: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """
-        All logic and mathematics are transferred to RUST lang.
-
-        Creating a song signature based on a file and searching for this signature in the shazam
-        database.
-            :param data: Path to song file or bytes
-            :param proxy: Proxy server
-            :return: Dictionary with information about the found song
-        """
-        if isinstance(data, (str, pathlib.Path)):
-            signature = await self.core_recognizer.recognize_path(data)
-        elif isinstance(data, (bytes, bytearray)):
-            signature = await self.core_recognizer.recognize_bytes(data)
-        else:
-            raise ValueError("Invalid data type")
-
-        return await self.send_recognize_request_v2(sig=signature, proxy=proxy)
-
-    async def send_recognize_request_v2(
-        self,
-        sig: Signature,
-        proxy: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        data = Converter.data_search(
-            Request.TIME_ZONE,
-            sig.signature.uri,
-            sig.signature.samples,
-            sig.timestamp,
         )
         return await self.http_client.request(
             "POST",

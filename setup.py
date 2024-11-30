@@ -17,8 +17,7 @@ setuptools.setup(
         "numpy",
         "aiofiles",
         "dataclass-factory",
-        "shazamio_core",
     ],
     packages=setuptools.find_packages(),
-    python_requires=">=3.10",
+    python_requires=">=3.8",
 )
