@@ -6,7 +6,6 @@ from typing import Optional
 
 from aiohttp_retry import ExponentialRetry
 from pydub import AudioSegment
-from shazamio_core import Recognizer, Signature
 
 from .client import HTTPClient
 from .converter import Converter, GeoService
